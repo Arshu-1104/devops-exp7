@@ -1,14 +1,38 @@
 pipeline {
     agent any
-    stages {
-        stage('Build') {
-            steps { sh 'mvn clean package' }
-        }
+
+    parameters {
+        string(
+            name: 'BRANCH_NAME',
+            defaultValue: 'main',
+            description: 'Git branch to build'
+        )
     }
-    post {
-        success {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.BRANCH_NAME,
+                    url: 'https://github.com/Arshu-1104/devops-exp7.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Show Branch') {
+            steps {
+                sh 'cat branch.txt'
+            }
         }
     }
 }
-
